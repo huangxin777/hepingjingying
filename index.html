@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>今晚跳火山</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07121d;
+      --card: #0b1a29;
+      --card-soft: rgba(8, 22, 28, .92);
+      --line: rgba(255, 255, 255, .13);
+      --text: #f6f9fd;
+      --muted: #c7d3df;
+      --gold: #ffd166;
+      --green: #48d596;
+      --lava: #ff715b;
+      --hill: #256a42;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(255, 209, 102, .16), transparent 26%),
+        radial-gradient(circle at 88% 18%, rgba(80, 169, 255, .14), transparent 24%),
+        linear-gradient(135deg, #182426 0%, #07121d 52%, #092018 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, .7), transparent 80%);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      width: min(760px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: max(24px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom));
+      display: grid;
+      align-items: center;
+    }
+
+    .poster {
+      position: relative;
+      min-height: min(920px, calc(100vh - 48px));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(14, 33, 52, .94), rgba(6, 16, 25, .97) 54%, rgba(12, 35, 24, .96)),
+        var(--card);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .38);
+    }
+
+    .poster::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 74% 64%, rgba(255, 103, 91, .2), transparent 9%),
+        linear-gradient(25deg, transparent 0 57%, rgba(119, 219, 174, .12) 57.4% 58.6%, transparent 59% 100%);
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 3;
+      min-height: inherit;
+      padding: 34px 32px 30px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 14px;
+      border: 1px solid rgba(255, 255, 255, .13);
+      border-radius: 999px;
+      color: #dbe8f5;
+      background: rgba(4, 14, 22, .66);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06);
+      backdrop-filter: blur(14px);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 16px rgba(72, 213, 150, .9);
+    }
+
+    .headline {
+      position: relative;
+      width: min(100%, 620px);
+    }
+
+    h1 {
+      position: relative;
+      z-index: 2;
+      max-width: 6.2ch;
+      margin: 0;
+      font-size: clamp(76px, 17vw, 156px);
+      line-height: .82;
+      letter-spacing: 0;
+      font-weight: 950;
+      text-wrap: balance;
+    }
+
+    .title-line {
+      display: block;
+    }
+
+    .title-line + .title-line {
+      margin-top: .12em;
+    }
+
+    .airdrop {
+      position: absolute;
+      z-index: 1;
+      right: 1%;
+      top: 26px;
+      width: clamp(142px, 27vw, 210px);
+      animation: floatingDrop 4.6s ease-in-out infinite;
+      filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .3));
+    }
+
+    .airdrop svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .lead {
+      width: min(560px, 100%);
+      margin: 28px 0 0;
+      color: #dce8f3;
+      font-size: clamp(24px, 5.6vw, 34px);
+      line-height: 1.38;
+      font-weight: 650;
+    }
+
+    .lead strong {
+      color: var(--gold);
+      font-weight: 950;
+    }
+
+    .scene {
+      position: absolute;
+      z-index: 1;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 48%;
+      pointer-events: none;
+    }
+
+    .cloud-smoke {
+      position: absolute;
+      left: 67%;
+      top: 9%;
+      width: 118px;
+      height: 104px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(255, 90, 86, .55), transparent 42%),
+        radial-gradient(circle at 50% 70%, rgba(255, 191, 105, .24), transparent 46%);
+      filter: blur(12px);
+      animation: smoke 3.2s ease-in-out infinite;
+    }
+
+    .hill {
+      position: absolute;
+      bottom: 78px;
+      width: 34%;
+      height: 58%;
+      border-radius: 50% 50% 0 0;
+      background: linear-gradient(180deg, rgba(45, 139, 83, .9), rgba(23, 66, 44, .98));
+      filter: blur(.2px);
+      opacity: .9;
+    }
+
+    .hill-one {
+      left: -2%;
+      transform: rotate(-2deg);
+    }
+
+    .hill-two {
+      left: 31%;
+      bottom: 64px;
+      height: 68%;
+      background: linear-gradient(180deg, rgba(48, 151, 82, .92), rgba(24, 79, 48, .98));
+    }
+
+    .hill-three {
+      right: 2%;
+      width: 31%;
+      height: 48%;
+      background: linear-gradient(180deg, rgba(74, 108, 62, .86), rgba(30, 58, 39, .96));
+    }
+
+    .ground {
+      position: absolute;
+      left: -4%;
+      right: -4%;
+      bottom: 0;
+      height: 128px;
+      background:
+        linear-gradient(90deg, transparent 0 8%, rgba(255, 255, 255, .12) 8% 10%, transparent 10% 16%, rgba(255, 255, 255, .08) 16% 18%, transparent 18% 100%),
+        linear-gradient(180deg, #233b2e, #15251e);
+      clip-path: polygon(0 30%, 15% 18%, 31% 26%, 46% 8%, 64% 22%, 80% 16%, 100% 32%, 100% 100%, 0 100%);
+    }
+
+    .volcano {
+      position: absolute;
+      right: 16%;
+      bottom: 128px;
+      width: 132px;
+      height: 106px;
+      transform: rotate(-3deg);
+    }
+
+    .volcano::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, #46575c, #1d2830);
+      clip-path: polygon(50% 5%, 96% 100%, 3% 100%);
+    }
+
+    .volcano::after {
+      content: "";
+      position: absolute;
+      left: 51px;
+      top: 12px;
+      width: 31px;
+      height: 66px;
+      background: linear-gradient(180deg, var(--gold), var(--lava) 55%, transparent);
+      clip-path: polygon(38% 0, 64% 0, 100% 100%, 0 100%);
+      animation: lava 1.8s ease-in-out infinite;
+    }
+
+    .sign {
+      position: absolute;
+      right: 8%;
+      bottom: 196px;
+      width: 202px;
+      min-height: 76px;
+      padding: 12px 16px;
+      border: 3px solid rgba(42, 34, 10, .28);
+      border-radius: 8px;
+      color: #1f1708;
+      background: var(--gold);
+      transform: rotate(-4deg);
+      box-shadow: 0 14px 24px rgba(0, 0, 0, .28);
+      text-align: center;
+      font-size: 18px;
+      line-height: 1.18;
+      font-weight: 950;
+    }
+
+    .fire-team {
+      position: absolute;
+      z-index: 6;
+      left: 8%;
+      right: 34%;
+      bottom: 220px;
+      height: 92px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .fighter {
+      position: relative;
+      width: 54px;
+      height: 82px;
+      animation: fighterBob 1.8s ease-in-out infinite;
+    }
+
+    .fighter:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    .fighter:nth-child(3) {
+      animation-delay: .36s;
+    }
+
+    .fighter:nth-child(4) {
+      animation-delay: .12s;
+    }
+
+    .helmet {
+      position: absolute;
+      left: 16px;
+      top: 2px;
+      width: 23px;
+      height: 18px;
+      border-radius: 14px 14px 7px 7px;
+      background: #dbe7ef;
+      box-shadow: inset 0 -5px 0 #5d6f7a;
+    }
+
+    .helmet::before {
+      content: "";
+      position: absolute;
+      right: -3px;
+      top: 8px;
+      width: 10px;
+      height: 5px;
+      border-radius: 999px;
+      background: #8ecae6;
+      box-shadow: 0 0 8px rgba(142, 202, 230, .55);
+    }
+
+    .helmet::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      right: 5px;
+      bottom: -10px;
+      height: 11px;
+      border-radius: 0 0 8px 8px;
+      background: #f1c08e;
+    }
+
+    .torso {
+      position: absolute;
+      left: 14px;
+      top: 30px;
+      width: 27px;
+      height: 33px;
+      border-radius: 9px 9px 6px 6px;
+      background: linear-gradient(180deg, #31485a, #182934);
+      box-shadow: inset 0 9px 0 rgba(125, 211, 168, .2);
+    }
+
+    .legs {
+      position: absolute;
+      left: 13px;
+      top: 61px;
+      width: 30px;
+      height: 18px;
+    }
+
+    .legs::before,
+    .legs::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 9px;
+      height: 20px;
+      border-radius: 0 0 5px 5px;
+      background: #111c24;
+    }
+
+    .legs::before {
+      left: 4px;
+      transform: rotate(7deg);
+    }
+
+    .legs::after {
+      right: 4px;
+      transform: rotate(-7deg);
+    }
+
+    .gun {
+      position: absolute;
+      left: 31px;
+      top: 34px;
+      width: 38px;
+      height: 7px;
+      border-radius: 999px;
+      background: #dbe7ef;
+      transform-origin: 0 50%;
+      transform: rotate(-25deg);
+      box-shadow: 12px -1px 0 -2px #dbe7ef;
+    }
+
+    .gun::before {
+      content: "";
+      position: absolute;
+      left: -11px;
+      top: 2px;
+      width: 18px;
+      height: 5px;
+      border-radius: 999px;
+      background: #f1c08e;
+      transform: rotate(18deg);
+      transform-origin: right center;
+    }
+
+    .gun::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      top: 1px;
+      width: 12px;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--gold);
+      box-shadow: 0 0 13px rgba(255, 209, 102, .8);
+      animation: muzzleFlash .46s steps(2, end) infinite;
+    }
+
+    .fighter:nth-child(1) .gun {
+      transform: rotate(-34deg);
+    }
+
+    .fighter:nth-child(2) .gun {
+      transform: rotate(-40deg);
+    }
+
+    .fighter:nth-child(3) .gun {
+      transform: rotate(-50deg);
+    }
+
+    .fighter:nth-child(4) .gun {
+      transform: rotate(-62deg);
+    }
+
+    .bullet-field {
+      position: absolute;
+      z-index: 5;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .bullet {
+      position: absolute;
+      left: var(--x);
+      bottom: var(--y);
+      width: 22px;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, #fff4b8 35%, var(--gold));
+      box-shadow: 0 0 14px rgba(255, 209, 102, .78);
+      animation: bulletFly 1.05s linear infinite;
+      animation-delay: var(--delay);
+      transform: rotate(var(--angle));
+      opacity: 0;
+    }
+
+    .cards {
+      position: relative;
+      z-index: 4;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: auto;
+      padding-top: 110px;
+    }
+
+    .mini-card {
+      min-height: 108px;
+      padding: 17px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 8px;
+      background: var(--card-soft);
+      backdrop-filter: blur(18px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .mini-card span {
+      display: block;
+      margin-bottom: 8px;
+      color: #b5c5d2;
+      font-size: 15px;
+    }
+
+    .mini-card b {
+      display: block;
+      font-size: clamp(20px, 4vw, 26px);
+      line-height: 1.12;
+    }
+
+    .copy-row {
+      position: relative;
+      z-index: 4;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      margin-top: 14px;
+      align-items: stretch;
+    }
+
+    .invite-text {
+      margin: 0;
+      padding: 13px 14px;
+      border: 1px dashed rgba(255, 255, 255, .2);
+      border-radius: 8px;
+      color: #dde8f2;
+      background: rgba(4, 14, 22, .72);
+      font-size: 14px;
+      line-height: 1.52;
+    }
+
+    .copy-btn {
+      min-width: 132px;
+      border: 0;
+      border-radius: 8px;
+      color: #161006;
+      background: linear-gradient(135deg, var(--gold), #ffb84d);
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 950;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .copy-btn:focus-visible {
+      outline: 2px solid #8ecae6;
+      outline-offset: 3px;
+    }
+
+    .toast {
+      position: relative;
+      z-index: 4;
+      min-height: 22px;
+      margin-top: 8px;
+      color: var(--green);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @keyframes floatingDrop {
+      0%, 100% {
+        transform: translateY(0) rotate(2deg);
+      }
+      45% {
+        transform: translate(12px, 14px) rotate(-2deg);
+      }
+      72% {
+        transform: translate(0, 24px) rotate(1deg);
+      }
+    }
+
+    @keyframes smoke {
+      0%, 100% {
+        opacity: .45;
+        transform: translateY(8px) scale(.92);
+      }
+      50% {
+        opacity: .82;
+        transform: translateY(-10px) scale(1.05);
+      }
+    }
+
+    @keyframes lava {
+      0%, 100% {
+        opacity: .75;
+        transform: translateY(0);
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes fighterBob {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-3px);
+      }
+    }
+
+    @keyframes muzzleFlash {
+      0%, 45% {
+        opacity: 0;
+        transform: scaleX(.55);
+      }
+      46%, 100% {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes bulletFly {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0) rotate(var(--angle)) scale(.45);
+      }
+      12% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) rotate(var(--angle)) scale(1);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: max(14px, env(safe-area-inset-top)) 12px max(14px, env(safe-area-inset-bottom));
+        align-items: start;
+      }
+
+      .poster {
+        min-height: calc(100vh - 28px);
+      }
+
+      .content {
+        padding: 34px 22px 22px;
+      }
+
+      .badge {
+        min-height: 32px;
+        padding: 7px 11px;
+        font-size: 13px;
+      }
+
+      h1 {
+        max-width: 5.4ch;
+        font-size: clamp(70px, 23vw, 112px);
+      }
+
+      .airdrop {
+        right: -2%;
+        top: 42px;
+        width: clamp(128px, 39vw, 166px);
+      }
+
+      .lead {
+        margin-top: 22px;
+        font-size: clamp(20px, 6vw, 27px);
+      }
+
+      .scene {
+        height: 46%;
+      }
+
+      .hill {
+        bottom: 76px;
+        width: 48%;
+      }
+
+      .hill-two {
+        left: 27%;
+      }
+
+      .hill-three {
+        right: -5%;
+        width: 45%;
+      }
+
+      .volcano {
+        right: 14%;
+        bottom: 118px;
+        width: 106px;
+        height: 86px;
+      }
+
+      .volcano::after {
+        left: 41px;
+        width: 25px;
+        height: 54px;
+      }
+
+      .sign {
+        right: 8%;
+        bottom: 190px;
+        width: 164px;
+        min-height: 60px;
+        padding: 10px 12px;
+        font-size: 15px;
+      }
+
+      .fire-team {
+        left: 5%;
+        right: 30%;
+        bottom: 258px;
+        transform: scale(.82);
+        transform-origin: left bottom;
+      }
+
+      .bullet {
+        width: 18px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding-top: 90px;
+      }
+
+      .mini-card {
+        min-height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 15px;
+      }
+
+      .mini-card span {
+        margin: 0;
+        white-space: nowrap;
+      }
+
+      .mini-card b {
+        text-align: right;
+        font-size: 20px;
+      }
+
+      .copy-row {
+        grid-template-columns: 1fr;
+      }
+
+      .copy-btn {
+        min-height: 50px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .content {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      h1 {
+        font-size: clamp(62px, 22vw, 88px);
+      }
+
+      .lead {
+        font-size: 19px;
+      }
+
+      .fire-team {
+        left: 3%;
+        right: 28%;
+        transform: scale(.74);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="poster" aria-label="和平精英火山地图今晚邀请">
+      <div class="scene" aria-hidden="true">
+        <div class="cloud-smoke"></div>
+        <div class="hill hill-one"></div>
+        <div class="hill hill-two"></div>
+        <div class="hill hill-three"></div>
+        <div class="volcano"></div>
+        <div class="ground"></div>
+        <div class="sign">今晚不跳火山<br>就会被催</div>
+        <div class="bullet-field">
+          <span class="bullet" style="--x: 16%; --y: 265px; --tx: 420px; --ty: -310px; --angle: -34deg; --delay: 0s;"></span>
+          <span class="bullet" style="--x: 26%; --y: 272px; --tx: 350px; --ty: -315px; --angle: -40deg; --delay: .16s;"></span>
+          <span class="bullet" style="--x: 37%; --y: 270px; --tx: 270px; --ty: -318px; --angle: -50deg; --delay: .32s;"></span>
+          <span class="bullet" style="--x: 48%; --y: 263px; --tx: 182px; --ty: -320px; --angle: -62deg; --delay: .48s;"></span>
+          <span class="bullet" style="--x: 21%; --y: 254px; --tx: 390px; --ty: -292px; --angle: -37deg; --delay: .68s;"></span>
+          <span class="bullet" style="--x: 42%; --y: 282px; --tx: 230px; --ty: -336px; --angle: -56deg; --delay: .84s;"></span>
+        </div>
+        <div class="fire-team">
+          <div class="fighter">
+            <span class="helmet"></span>
+            <span class="torso"></span>
+            <span class="gun"></span>
+            <span class="legs"></span>
+          </div>
+          <div class="fighter">
+            <span class="helmet"></span>
+            <span class="torso"></span>
+            <span class="gun"></span>
+            <span class="legs"></span>
+          </div>
+          <div class="fighter">
+            <span class="helmet"></span>
+            <span class="torso"></span>
+            <span class="gun"></span>
+            <span class="legs"></span>
+          </div>
+          <div class="fighter">
+            <span class="helmet"></span>
+            <span class="torso"></span>
+            <span class="gun"></span>
+            <span class="legs"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="badges" aria-label="组队信息">
+          <span class="badge"><i class="dot" aria-hidden="true"></i> 四排车队待发</span>
+          <span class="badge">今晚 20:00</span>
+          <span class="badge">火山地图集合</span>
+        </div>
+
+        <div class="headline">
+          <h1><span class="title-line">今晚跳</span><span class="title-line">火山吗</span></h1>
+          <div class="airdrop" aria-hidden="true">
+            <svg viewBox="0 0 220 210">
+              <path d="M22 84C32 32 68 10 110 10c44 0 80 24 90 74H22Z" fill="#ffd166"/>
+              <path d="M22 84c22-20 43-21 63 0 16-21 33-21 50 0 20-21 42-20 65 0H22Z" fill="#ff715b"/>
+              <path d="M43 84 84 136M110 84v58M178 84l-43 52" stroke="#e5edf7" stroke-width="5" stroke-linecap="round"/>
+              <rect x="67" y="134" width="86" height="58" rx="10" fill="#263a51" stroke="#e5edf7" stroke-width="4"/>
+              <path d="M67 153h86M88 134v58M132 134v58" stroke="rgba(255,255,255,.28)" stroke-width="4"/>
+              <rect x="83" y="149" width="54" height="27" rx="6" fill="#ffd166"/>
+              <text x="110" y="169" text-anchor="middle" font-size="18" font-weight="900" fill="#1f1708">空投</text>
+              <path d="M96 134c2 15 26 15 29 0" fill="none" stroke="#58b7ff" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <p class="lead">诚邀各位队友上线《和平精英》：<strong>落地别散，看到敌人叫上队友一起冲锋！</strong></p>
+
+        <div class="cards" aria-label="今晚任务">
+          <div class="mini-card">
+            <span>集合点</span>
+            <b>火山地图</b>
+          </div>
+          <div class="mini-card">
+            <span>战术目标</span>
+            <b>先稳再刚</b>
+          </div>
+          <div class="mini-card">
+            <span>失败预案</span>
+            <b>换图重开</b>
+          </div>
+        </div>
+
+        <div class="copy-row">
+          <p class="invite-text" id="inviteText">今晚 20:00 和平精英火山地图集合，直接跳火山。别迟到，晚来只能听我们复盘“刚才那把差一点”。</p>
+          <button class="copy-btn" type="button" id="copyBtn">复制口令</button>
+        </div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const inviteText = document.querySelector("#inviteText");
+    const copyBtn = document.querySelector("#copyBtn");
+    const toast = document.querySelector("#toast");
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(inviteText.textContent);
+        toast.textContent = "口令已复制，发群里就等队友装作没看见。";
+      } catch (error) {
+        toast.textContent = "复制受限，可以长按上面的口令手动复制。";
+      }
+    });
+  </script>
+</body>
+</html>
