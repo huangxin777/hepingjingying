@@ -179,7 +179,7 @@
 
     .scene {
       position: absolute;
-      z-index: 1;
+      z-index: auto;
       left: 0;
       right: 0;
       bottom: 0;
@@ -630,7 +630,7 @@
       }
 
       .poster {
-        min-height: max(920px, calc(100vh - 28px));
+        min-height: max(980px, calc(100vh - 28px));
       }
 
       .content {
@@ -702,19 +702,20 @@
       .fire-team {
         left: 5%;
         right: 30%;
-        bottom: 332px;
+        bottom: 390px;
         transform: scale(.82);
         transform-origin: left bottom;
       }
 
       .bullet {
+        bottom: calc(var(--y) + 120px);
         width: 18px;
       }
 
       .cards {
         grid-template-columns: 1fr;
         gap: 8px;
-        padding-top: 178px;
+        padding-top: 250px;
       }
 
       .mini-card {
@@ -762,14 +763,14 @@
       .fire-team {
         left: 3%;
         right: 28%;
-        bottom: 326px;
+        bottom: 386px;
         transform: scale(.74);
       }
     }
 
     @media (max-width: 640px) and (max-height: 780px) {
       .poster {
-        min-height: 940px;
+        min-height: 990px;
       }
 
       .scene {
@@ -777,11 +778,11 @@
       }
 
       .fire-team {
-        bottom: 338px;
+        bottom: 398px;
       }
 
       .cards {
-        padding-top: 190px;
+        padding-top: 264px;
       }
     }
   </style>
